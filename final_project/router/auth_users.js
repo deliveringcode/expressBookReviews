@@ -42,7 +42,7 @@ regd_users.post("/login", (req,res) => {
     if (authenticatedUser(username, password)) {
         let accessToken = jwt.sign({
             data: password
-        }, 'access', { expiresIn: 60 });
+        }, 'access', { expiresIn: 60 * 3 });
 
         // Store access token and username in session
         req.session.authorization = {
@@ -56,8 +56,53 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const review = req.body.review; 
+    
+    const username = req.session.authorization.username;
+
+    // check review
+    if (!review) {
+        return res.status(400).json({ message: "Please provide a review for the book." });
+    }
+
+    //chexk if book exists
+    if (books[isbn]) {
+        
+        books[isbn].reviews[username] = review;
+        
+        return res.status(200).json({ 
+            message: `The review for the book with ISBN ${isbn} has been successfully added/updated.`,
+            reviews: books[isbn].reviews 
+        });
+        
+    } else {
+        return res.status(404).json({ message: `Book with ISBN ${isbn} not found.` });
+    }
+});
+
+regd_users.delete("/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    
+    const username = req.session.authorization.username;
+
+    if (books[isbn]) {
+        
+        if (books[isbn].reviews[username]) {
+            
+            delete books[isbn].reviews[username];
+            
+            return res.status(200).json({ 
+                message: `Review for the ISBN ${isbn} posted by customer ${username} has been deleted.` 
+            });
+            
+        } else {
+            return res.status(404).json({ message: `No review found for user ${username} on this book.` });
+        }
+        
+    } else {
+        return res.status(404).json({ message: `Book with ISBN ${isbn} not found.` });
+    }
 });
 
 module.exports.authenticated = regd_users;
