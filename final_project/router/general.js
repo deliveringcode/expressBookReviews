@@ -40,7 +40,7 @@ public_users.get('/', async function (req, res) {
     });
        
     methCall.then(
-    (data) => res.status(200).send(JSON.stringify(response.data, null, 4)),
+    (data) => res.status(200).send(JSON.stringify(data, null, 4)),
     (err) => res.status(500).send(err)
     );
 
@@ -50,7 +50,20 @@ public_users.get('/', async function (req, res) {
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   const isbn = req.params.isbn;
-  res.send(books[isbn]);
+  //res.send(books[isbn]);
+  axios.get = () => Promise.resolve({ data: books[isbn] });
+
+axios.get()
+    .then((response) => {
+        if (response.data) {
+            return res.status(200).json(response.data);
+        } else {
+            return res.status(404).json({ message: `Book with ISBN ${isbn} not found` });
+        }
+    })
+    .catch((error) => {
+        return res.status(500).json({ message: "Error fetching book details", error: error.message });
+    });
 });
   
 // Get book details based on author
