@@ -78,7 +78,7 @@ public_users.get('/author/:author',function (req, res) {
         if (response.data) {
             return res.status(200).json(response.data);
         } else {
-            return res.status(404).json({ message: `Book with ISBN ${isbn} not found` });
+            return res.status(404).json({ message: `Book with author ${author} not found` });
         }
     })
     .catch((error) => {
@@ -97,10 +97,23 @@ public_users.get('/title/:title',function (req, res) {
     const keys = Object.values(books);
     const data = keys.filter(book => book.title === title);
     if(data.length > 0){
-      return res.status(200).json(data);
+        axios.get = () => Promise.resolve({ data: data });
+        axios.get()
+        .then((response) => {
+            if (response.data) {
+                return res.status(200).json(response.data);
+            } else {
+                return res.status(404).json({ message: `Book with title ${title} not found` });
+            }
+        })
+        .catch((error) => {
+            return res.status(500).json({ message: "Error fetching book by author", error: error.message });
+        });
+       
     }
     else
-      return res.status(404).json({message: "Title not found"});
+        return res.status(404).json({message: "Title not found"});
+      
     
 });
 
