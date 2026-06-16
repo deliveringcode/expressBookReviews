@@ -53,17 +53,17 @@ public_users.get('/isbn/:isbn',function (req, res) {
   //res.send(books[isbn]);
   axios.get = () => Promise.resolve({ data: books[isbn] });
 
-axios.get()
-    .then((response) => {
-        if (response.data) {
-            return res.status(200).json(response.data);
-        } else {
-            return res.status(404).json({ message: `Book with ISBN ${isbn} not found` });
-        }
-    })
-    .catch((error) => {
-        return res.status(500).json({ message: "Error fetching book details", error: error.message });
-    });
+    axios.get()
+        .then((response) => {
+            if (response.data) {
+                return res.status(200).json(response.data);
+            } else {
+                return res.status(404).json({ message: `Book with ISBN ${isbn} not found` });
+            }
+        })
+        .catch((error) => {
+            return res.status(500).json({ message: "Error fetching book details", error: error.message });
+        });
 });
   
 // Get book details based on author
@@ -72,7 +72,19 @@ public_users.get('/author/:author',function (req, res) {
   const keys = Object.values(books);
   const data = keys.filter(book => book.author === author);
   if(data.length > 0){
-    return res.status(200).json(data);
+    axios.get = () => Promise.resolve({ data: data });
+    axios.get()
+    .then((response) => {
+        if (response.data) {
+            return res.status(200).json(response.data);
+        } else {
+            return res.status(404).json({ message: `Book with ISBN ${isbn} not found` });
+        }
+    })
+    .catch((error) => {
+        return res.status(500).json({ message: "Error fetching book by author", error: error.message });
+    });
+   
   }
   else
     return res.status(404).json({message: "Author not found"});
