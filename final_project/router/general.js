@@ -3,7 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-
+//const axios = require('axios');
 
 public_users.post("/register", (req,res) => {
     const username = req.body.username;
@@ -26,8 +26,25 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books,null,4));
+public_users.get('/', async function (req, res) {
+    
+    const methCall = new Promise((resolve,reject)=>{
+        try {
+            const data = books;
+            resolve(data);
+        } catch(err) {
+            reject(err)
+        }
+
+
+    });
+       
+    methCall.then(
+    (data) => res.status(200).send(JSON.stringify(response.data, null, 4)),
+    (err) => res.status(500).send(err)
+    );
+
+          
 });
 
 // Get book details based on ISBN
